@@ -31,9 +31,9 @@ Collection 생성
   > db.collection.insert({"Key": "Value"})
   > db.creatCollection("Collection 이름",{option})
     option
-      capped: true,   // true 이며 반드시 size를 설정해야 한다.
+      capped: true,   // true 이면 제한된 크기를 지정,  저장공간이 넘어가면 오래된 데이터는 삭제
       size: 6142800,  // 해당 Collection의 최대 크기
-      max: 10000      // 해당 Collection에 포함될 수 있는 최대 갯수
+      max: 10000      // 해당 Collection에 포함될 수 있는 최대 개수
 Collection 삭제
   > db.collection.drop()
   
