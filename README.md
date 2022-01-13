@@ -1,4 +1,4 @@
-<img scr="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MongoDB_Logo.svg/220px-MongoDB_Logo.svg.png">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MongoDB_Logo.svg/440px-MongoDB_Logo.svg.png">
 
 # Project Study MongoDB 
 
