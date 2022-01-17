@@ -52,6 +52,7 @@ db.user.find({});
 db.user.find({ username : "Jane" });
 
 db.user.update({ username : "Jane"}, { $set: {password: 5555 } } );
+db.user.update({ username : "Jane"}, { $unset: {password: 5555 } } );
 
 db.user.remove( {username:"Jane"} );
 
