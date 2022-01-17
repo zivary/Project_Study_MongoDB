@@ -1,0 +1,38 @@
+#. MongoDB dbPath, systemLogPath 변경하기
+
+0. 가동중인 Service 중에 mongo 가 있는지 확인
+	$Ps -ef | grep mongo
+
+1. Service MongoDB 끄기
+
+	$mongo
+	$use admin
+	$db.shutdownServer() (admin db 에서만 shutdownServer() 가능)
+
+
+2. dbpath, logpath 변경
+
+	1) 원하는 위치에 mkdir로 파인더 만들기
+
+	2) dbpath 변경 (아래 명령어를 입력하고 새창으로 접속)
+		sudo mongod --dbpath /Users/mac/Mongodb_data/db 
+
+	3) dbpath, logpath 함깨 변경 (logpath 는 건드릴 일 없을 것 같음)
+		sudo mongod --dbpath /Users/mac/Mongodb_data/db --logpath /Users/mac/Mongodb_data/db/mongo.log --fork
+
+
+
+
+[mongod.conf]
+systemLog:
+  destination: file
+  path: /usr/local/var/log/mongodb/mongo.log
+  logAppend: true
+storage:
+  dbPath: /usr/local/var/mongodb
+net:
+  bindIp: 127.0.0.1
+
+
+*원위치로 돌아가기
+	sudo mongod --dbpath /usr/local/var/mongodb --logpath /usr/local/var/log/mongodb/mongo.log --fork
