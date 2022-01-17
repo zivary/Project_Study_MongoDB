@@ -1,0 +1,132 @@
+#. mongoDB & Javasciprt 명령
+
+JSON --> Javascript on Notation
+
+Javascript 문법 : 
+
+ 변수, 
+ 연산자, 
+ 조건문, 
+ 반복문, 
+ 함수 : 선언적함수, 익명함수
+
+ JSON 형태 -> dict 
+ { key:value }
+
+-- [ 참고 ] - mongodb_tutorial.pdf 
+--------------------------------------------
+Quiz 01)-----------------------------
+var stu01 = ['Kim','Lee','Park','Hong']
+db.students <--- { num : name }
+
+1: 'Kim',
+2: 'Lee',
+3: 'Park',
+4: 'Hong'
+--------------------------------------
+for(i=0;i<stu01.length;i++) { db.students.insert({ num:i+1,name:stu01[i] }) };
+
+============================
+Quiz02)-------------------------------------------------
+var names = ['Jane','Tom','Alice','James','Sophia']
+var points = [76,54,85,64,99]
+
+db.scores <--- { name : point }
+
+for(i=0;i<names.length;i++) { db.scores.insert({ name:stu01[i],point:points[i] }) };
+
+db.scores.find({point:{$gt:90}});
+db.scores.find({point:{$gt:70}}).pretty();
+db.scores.findOne({point:{$gt:70}});
+db.scores.find({point:{$gte:60,$lte:90}});
+db.scores.find({point:{$in:[54,76,99]}});
+db.scores.find({point:{$nin:[54,76,99]}});
+
+or 연산자 --> point 가 60 이하이거나, 90 이상인 학생만 출력
+db.scores.find({$or:[{point:{$lte:60}},{point:{$gte:90}}]});
+
+db.scores.find({ point:{$exists:false}  });
+db.score.find({age:{ $exists: true} });
+
+db.scores.find();
+db.scores.find({});
+db.scores.find({ 조건 },{ 컬럼 });
+
+db.scores.find({},{name:1,_id:0});
+
+db.scores 에서 point가 76이상인 학생들의 이름만 출력
+
+db.scores.find({point:{$gte :76 }},{name:1,_id:0});
+db.scores.find({point:{$gte :76 }},{name:1,point:1,_id:0});
+
+db.scores.find({},{name:1,_id:0}).limit(2);
+db.scores.find({},{name:1,poing:1,_id:0}).limit(2);
+db.scores.find({},{name:1,point:1,_id:0}).limit(2);
+db.scores.find({},{name:1,point:1,_id:0}).limit(2).skip(1);
+db.scores.find({},{name:1,point:1,_id:0}).sort({point:1}).limit(3);
+db.scores.find({},{name:1,point:1,_id:0}).sort({point:-1}).limit(3);
+
+------------------------------------------------------------------------
+ Update, --> Field, Array ? 
+
+
+_id: ObjectId("61e4d5ab24aa04337626d9e7")
+	
+	* name: 'Alice', age: 34
+	=> James -> OS, DB
+
+	db.score.update({age:34},{$set:{name:'John'}});
+	db.score.update({name:'John'},{$unset:{age:34}});
+
+title: 'IT Trend'에서 price: 50000 제거 
+
+	db.score.update({title: 'IT Trend',},{$unset:{price: 50000}});
+
+title: 'IT Trend'에서 price: 35000 추가
+
+	db.score.update({title: 'IT Trend',},{$set:{price: 35000}});
+
+title: 'IT Trend'에서 price: 70000 추가
+
+	db.score.update({title: 'IT Trend',},{$set:{price: 70000}});
+
+
+Alice -> PPT, SQL, Web
+
+	 db.score.insert({name:'Alice',certi:['PPT','SQL','Web']});
+
+John -> 추가 certi : OS, DB
+
+	db.score.update({name:'John'},{$set:{certi:['OS', 'DB']}}); 
+
+	<-- Excel 추가 <-- 전체 변경 ($set)
+	db.score.update({name:'John'},{$set:{certi:['OS', 'DB','Excel']}}); 
+
+	<-- [PPT] 추가 <-- $push
+	db.score.update({name:'John'},{$push:{certi:['PPT']}}); 
+
+	<-- Word 추가 <-- $push
+	db.score.update({name:'John'},{$push:{certi:'Word'}}); 
+
+	<-- Excel 제거
+	db.score.update({name:'John'},{$pull:{certi:'Excel'}}); 
+
+	<-- [PPT] 제거
+ 	db.score.update({name:'John'},{$pull:{certi:['PPT']}}); 
+
+----------------------------------------
+ remove() : Data 삭제
+
+	<-- title:'IT Trend' 제거
+	db.score.remove({title:'IT Trend'});
+
+	<-- db.score Data 삭제
+	db.score.remove({});
+
+ collection 삭제
+
+	db.score.drop();
+
+---------------------------------------
+
+
