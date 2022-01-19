@@ -1,0 +1,23 @@
+/Users/mac/Mongodb_data/repdb
+/Users/mac/Mongodb_data/repdb/db1
+/Users/mac/Mongodb_data/repdb/db2
+/Users/mac/Mongodb_data/repdb/db3
+
+
+mongod --replSet repSet --dbpath '/Users/mac/Mongodb_data/repdb/db1' --port 40001
+mongod --replSet repSet --dbpath '/Users/mac/Mongodb_data/repdb/db2' --port 40002
+mongod --replSet repSet --dbpath '/Users/mac/Mongodb_data/repdb/db3' --port 40003
+
+
+
+config = {_id : 'repSet', members : [{_id:0 , host:"localhost:40001" }, {_id:1 , host:"localhost:40002" }, {_id:2 , host:"localhost:40003" }]}
+
+
+
+rs.initiate(config)
+
+rs.status()
+
+mongo --port 400001
+mongo --port 400002
+mongo --port 400003
