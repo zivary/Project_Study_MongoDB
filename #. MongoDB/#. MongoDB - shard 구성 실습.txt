@@ -1,0 +1,180 @@
+#. mongodb shard 구성 실습
+
+[ directory 5개 구성 ]
+
+	mkdir 	shadb
+			/config1
+			/config2
+			/config3
+			/shard1
+				/db1
+				/db2
+				/db3
+			/shard2
+				/db1
+				/db2
+				/db3
+			/shard3
+				/db1
+				/db2
+				/db3
+
+
+ [cmd 창] 5개 띄움
+
+-------------------------------------------
+#. Config 3대 환경 구성 
+
+<cmd:빨간색>
+
+mongod --configsvr --replSet configRepl --dbpath "C:\data\shadb\config1" -port 31001
+mongod --configsvr --replSet configRepl --dbpath "C:\data\shadb\config2" -port 31002
+mongod --configsvr --replSet configRepl --dbpath "C:\data\shadb\config3" -port 31003
+
+mongo localhost:31001 (config01 server 접속)
+
+var config = {
+
+    _id : "configRepl", members : [ 
+        {_id : 0, host : 'localhost:31001'},
+        {_id : 1, host : 'localhost:31002'},
+        {_id : 2, host : 'localhost:31003'}  
+    ]
+}
+
+var config = { _id : "configRepl", members : [ {_id : 0, host : 'localhost:31001'},{_id : 1, host : 'localhost:31002'}, {_id : 2, host : 'localhost:31003'} ]}
+
+rs.initiate(config)
+
+rs.status()
+
+#. Shard 3대 구성 : 
+	[ Port ] 
+	1) shard1 --port 41001 / 41002 / 41003
+	2) shard2 --port 42001 / 42002 / 42003
+	3) shard3 --port 43001 / 43002 / 43003
+
+<cmd [shard1] : 파란색 >
+mongod --shardsvr --replSet shardRep1 --dbpath "C:\data\shadb\shard1\db1" -port 41001
+mongod --shardsvr --replSet shardRep1 --dbpath "C:\data\shadb\shard1\db2" -port 41002
+mongod --shardsvr --replSet shardRep1 --dbpath "C:\data\shadb\shard1\db3" -port 41003
+
+mongo localhost:41001
+
+var config = {
+
+    _id : "shardRep1", members : [ 
+        {_id : 0, host : 'localhost:41001'},
+        {_id : 1, host : 'localhost:41002'},
+        {_id : 2, host : 'localhost:41003'}  
+    ]
+}
+
+var config = { _id : "shardRep1", members : [ {_id : 0, host : 'localhost:41001'},{_id : 1, host : 'localhost:41002'}, {_id : 2, host : 'localhost:41003'} ]}
+
+rs.initiate(config)
+
+++++++++++++++++++++++
+
+<cmd [shard2] : 초록색>
+mongod --shardsvr --replSet shardRep2 --dbpath "C:\data\shadb\shard2\db1" -port 42001
+mongod --shardsvr --replSet shardRep2 --dbpath "C:\data\shadb\shard2\db2" -port 42002
+mongod --shardsvr --replSet shardRep2 --dbpath "C:\data\shadb\shard2\db3" -port 42003
+
+mongo localhost:42001
+
+var config = {
+
+    _id : "shardRep1", members : [ 
+        {_id : 0, host : 'localhost:42001'},
+        {_id : 1, host : 'localhost:42002'},
+        {_id : 2, host : 'localhost:42003'}  
+    ]
+}
+
+var config = { _id : "shardRep2", members : [ {_id : 0, host : 'localhost:42001'},{_id : 1, host : 'localhost:42002'}, {_id : 2, host : 'localhost:42003'} ]}
+
+rs.initiate(config)
+
+++++++++++++++++++++++
+<cmd [shard3] : 보라색>
+
+mongod --shardsvr --replSet shardRep3 --dbpath "C:\data\shadb\shard3\db1" -port 43001
+mongod --shardsvr --replSet shardRep3 --dbpath "C:\data\shadb\shard3\db2" -port 43002
+mongod --shardsvr --replSet shardRep3 --dbpath "C:\data\shadb\shard3\db3" -port 43003
+
+mongo localhost:43001
+
+var config = {
+
+    _id : "shardRep1", members : [ 
+        {_id : 0, host : 'localhost:43001'},
+        {_id : 1, host : 'localhost:43002'},
+        {_id : 2, host : 'localhost:43003'}  
+    ]
+}
+
+var config = { _id : "shardRep3", members : [ {_id : 0, host : 'localhost:43001'},{_id : 1, host : 'localhost:43002'}, {_id : 2, host : 'localhost:43003'} ]}
+
+rs.initiate(config)
+
+++++++++++++++++++++++++++++++++++++++++++++
+
+#. routing 구성 : mongos 3대 구성 
+<cmd>
+mongos --configdb configRepl/localhost:31001,localhost:31002,localhost:31003
+
+
+
+#. mongos 에서 sharding 구성
+<cmd 별도>
+
+ mongo  --> mongos 확인
+
+sh.addShard("shardRep1/localhost:41001")
+
+sh.addShard("shardRep2/localhost:42001")
+
+sh.addShard("shardRep3/localhost:43001")
+
+sh.enableSharding("msTest")
+sh.shardCollection("msTest.person",{_id:"hashed"});
+
+> use msTest
+	> show collections
+	> for(var i=0; i < 100000 ; i++) { db.person.insert({ number: i, name: "kor"+i }); };
+
++++++++++++++++++++++++++++++++++++++++++++
+++++ [ Sharding 분배 확인 ]
+
+	> db.person.find().count();
+
+
+<cmd 별도>
+	<shard1 >
+	mongo --port 41001
+
+	> show dbs
+	> use msTest
+	> show collections
+	> db.person.find().count()
+	> db.person.find().skip(1000).limit(10);
+
+	<shard2 >
+	mongo --port 42001
+
+	> show dbs
+	> use msTest
+	> show collections
+	> db.person.find().count()
+	> db.person.find().skip(1000).limit(10);
+
+	<shard3 >
+	mongo --port 41001
+
+	> show dbs
+	> use msTest
+	> show collections
+	> db.person.find().count()
+	> db.person.find().skip(1000).limit(10);
+
