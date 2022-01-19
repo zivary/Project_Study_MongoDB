@@ -1,0 +1,107 @@
+#. MongoDB as Shards
+
+##.Data Finder 9개 구성
+/Users/mac/Mongodb_data/shadb/config1
+/Users/mac/Mongodb_data/shadb/config2
+/Users/mac/Mongodb_data/shadb/config3
+/Users/mac/Mongodb_data/shadb/shard1/db1
+/Users/mac/Mongodb_data/shadb/shard1/db2
+/Users/mac/Mongodb_data/shadb/shard1/db3
+/Users/mac/Mongodb_data/shadb/shard2/db1
+/Users/mac/Mongodb_data/shadb/shard2/db2
+/Users/mac/Mongodb_data/shadb/shard2/db3
+/Users/mac/Mongodb_data/shadb/shard3/db1
+/Users/mac/Mongodb_data/shadb/shard3/db2
+/Users/mac/Mongodb_data/shadb/shard3/db3
+
+
+
+##.Config 3대 환경 구성
+mongod --configsvr --replSet configRepl --dbpath "/Users/mac/Mongodb_data/shadb/config1" --port 31001mongod --configsvr --replSet configRepl --dbpath "/Users/mac/Mongodb_data/shadb/config2" --port 31002mongod --configsvr --replSet configRepl --dbpath "/Users/mac/Mongodb_data/shadb/config3" --port 31003
+
+mongo localhost:31001 (config1 server 접속)
+
+var config = {_id : "configRepl", members : [{_id : 0, host : 'localhost:31001'}, {_id : 1, host : 'localhost:31002'}, {_id : 2, host : 'localhost:31003'}]}
+
+rs.initiate(config)
+
+
+
+
+##.Shard 3대 환경 구성
+
+###.Shard1 포드 구성 --port 41001 --port 41002 --port 41003
+mongod --shardsvr --replSet shardRep1 --dbpath "/Users/mac/Mongodb_data/shadb/shard1/db1" --port 41001
+mongod --shardsvr --replSet shardRep1 --dbpath "/Users/mac/Mongodb_data/shadb/shard1/db2" --port 41002
+mongod --shardsvr --replSet shardRep1 --dbpath "/Users/mac/Mongodb_data/shadb/shard1/db3" --port 41003
+
+mongo localhost:41001
+
+var config = {_id : "shardRep1", members : [{_id : 0, host : 'localhost:41001'}, {_id : 1, host : 'localhost:41002'}, {_id : 2, host : 'localhost:41003'}]}
+
+rs.initiate(config)
+
+
+
+###.Shard2 포드 구성 --port 42001 --port 42002 --port 42003
+mongod --shardsvr --replSet shardRep2 --dbpath "/Users/mac/Mongodb_data/shadb/shard2/db1" --port 42001
+mongod --shardsvr --replSet shardRep2 --dbpath "/Users/mac/Mongodb_data/shadb/shard2/db2" --port 42002
+mongod --shardsvr --replSet shardRep2 --dbpath "/Users/mac/Mongodb_data/shadb/shard2/db3" --port 42003
+
+mongo localhost:42001
+
+var config = {_id : "shardRep2", members : [{_id : 0, host : 'localhost:42001'}, {_id : 1, host : 'localhost:42002'}, {_id : 2, host : 'localhost:42003'}]}
+
+rs.initiate(config)
+
+
+
+###.Shard3 포드 구성 --port 43001 --port 43002 --port 43003
+mongod --shardsvr --replSet shardRep3 --dbpath "/Users/mac/Mongodb_data/shadb/shard3/db1" --port 43001
+mongod --shardsvr --replSet shardRep3 --dbpath "/Users/mac/Mongodb_data/shadb/shard3/db2" --port 43002
+mongod --shardsvr --replSet shardRep3 --dbpath "/Users/mac/Mongodb_data/shadb/shard3/db3" --port 43003
+
+
+mongo localhost:43001
+
+var config = {_id : "shardRep3", members : [{_id : 0, host : 'localhost:43001'}, {_id : 1, host : 'localhost:43002'}, {_id : 2, host : 'localhost:43003'}]}
+rs.initiate(config)
+
+
+
+rs.status()
+
+
+
+
+#. routing 구성 : mongos 3대 구성 <terminal>mongos --configdb configRepl/localhost:31001,localhost:31002,localhost:31003
+
+#. mongos 에서 sharding 구성
+<new terminal>
+mongo mongos
+mongo -->  mongos 확인
+
+sh.addShard("shardRep1/localhost:41001")
+sh.addShard("shardRep2/localhost:42001")
+sh.addShard("shardRep3/localhost:43001")
+
+sh.enableSharding("msTest")
+sh.shardCollection("msTest.person",{_id:"hashed"})
+
+> use msTest	> show collections	> for(var i=0; i < 10000 ; i++) { db.person.insert({ number: i, name: "kor"+i }); };	> db.person.find().count();
+
+
+<new terminal2>
+mongo localhost:41001
+> use msTest	> show collections	> for(var i=0; i < 10000 ; i++) { db.person.insert({ number: i, name: "kor"+i }); };	> db.person.find().count();
+	> db.person.find().skip(1000).limit(10)
+
+
+mongo localhost:42001
+> use msTest	> show collections	> for(var i=0; i < 10000 ; i++) { db.person.insert({ number: i, name: "kor"+i }); };	> db.person.find().count();
+	> db.person.find().skip(1000).limit(10)
+
+
+mongo localhost:43001
+> use msTest	> show collections	> for(var i=0; i < 10000 ; i++) { db.person.insert({ number: i, name: "kor"+i }); };	> db.person.find().count();
+	> db.person.find().skip(1000).limit(10)
