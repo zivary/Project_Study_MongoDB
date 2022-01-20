@@ -1,0 +1,56 @@
+#. ACID , BASE 
+
+ [ Business Data -> OLTP -> 수정 ]
+ - Data 저장,처리,관리 -> ACID  기준 -> RDB (index,transaction,commit,log,trigger, lock, ,,,  )
+
+	- 원자성(Atomicity) : 예약 
+	- 일관성(Consistency) : 규칙 유지-> Data Type, Constraints
+	- 고립성(Isolation) : 작업방어 -> Transaction 
+	- 지속성(Durability) : Log
+
+ [ Analsys Data -> OLAP -> 읽기 ]
+ - BigData -> NoSQL Data -> ACID  [X] <= 대량, 구조?, 속도?
+				      Volume, Variety, Velocity ==> BigData 3V
+	-> BASE 
+	- Basically Available : Replica Set 
+	- Soft state : 상태 유지 
+	- Eventually consistent : 이벤트성 일관성 --> [O] 구조 , [X] -> DataType,  범위 
+
+#. Sharding : 나눔(Distribution), 속도(Speed)
+
+ - RDB : 수평적 Table 분할/파티션
+
+
+ - BigData -> NoSQL Data : Sharding   
+
+ - Sharding 의 구성요소 	: MongoDB 편 (Round Robin)
+
+	- Data 하위 집합	: Shard
+	- Data Routing	: Mongos
+	- 구성설정	: Config Server
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+
+
