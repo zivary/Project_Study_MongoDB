@@ -1,5 +1,4 @@
-![640px-MongoDB_Logo svg](https://user-images.githubusercontent.com/96277148/152208058-81243fd6-4f8a-4b61-9dc6-c5b8a0b1fbcb.png)
-
+![Logo_MongoDB_500px](https://user-images.githubusercontent.com/96277148/152209767-43ce0144-c95f-454b-a93a-7452193a2e9e.png)
 
 # Project_Study_MongoDB 
 ---
