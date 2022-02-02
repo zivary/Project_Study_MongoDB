@@ -1,4 +1,4 @@
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/MongoDB_Logo.svg/440px-MongoDB_Logo.svg.png">
+![Logo_MongoDB_500px](https://user-images.githubusercontent.com/96277148/152209767-43ce0144-c95f-454b-a93a-7452193a2e9e.png)
 
 # Project_Study_MongoDB 
 ---
