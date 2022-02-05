@@ -12,7 +12,8 @@
 ---
 ## 2022년 2주차 Study
 
-### #. MongoDB - data 처리 기본 명령어.txt
+### #. MongoDB
+>data 처리 기본 명령어.txt
 
 ### mongodb_tutorial.pbf
 
